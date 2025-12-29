@@ -16,12 +16,19 @@ import axios from 'axios';
 import jsQR from 'jsqr';
 
 const NetworkSecurity = () => {
+  interface Network {
+    ssid: string;
+    security: string;
+    signal: number;
+    status: string;
+  }
+
   const [isScanning, setIsScanning] = useState(false);
   const [vpnActive, setVpnActive] = useState(false);
-  const [networks, setNetworks] = useState<any[]>([]);
+  const [networks, setNetworks] = useState<Network[]>([]);
   const [url, setUrl] = useState('');
   const [urlStatus, setUrlStatus] = useState<'idle' | 'checking' | 'safe' | 'danger'>('idle');
-  const [qrResult, setQrResult] = useState<any>(null);
+  const [qrResult, setQrResult] = useState<{ is_qr: boolean; decoded_content: string; risk_score: number; summary: string; threats: string[] } | null>(null);
   const [isQrScanning, setIsQrScanning] = useState(false);
 
   // QR Camera State
@@ -35,7 +42,7 @@ const NetworkSecurity = () => {
     setIsScanning(true);
     setNetworks([]);
     try {
-      const res = await axios.get('http://localhost:8000/api/network/scan');
+      const res = await axios.get('https://ai-cybersecurity-guard.onrender.com/api/network/scan');
       setNetworks(res.data);
     } catch (e) {
       console.error("Scan failed", e);
@@ -48,7 +55,7 @@ const NetworkSecurity = () => {
     if (!url) return;
     setUrlStatus('checking');
     try {
-      const res = await axios.post('http://localhost:8000/api/analyze/url', { url });
+      const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/url', { url });
       if (res.data.score > 5) {
         setUrlStatus('danger');
       } else {
@@ -127,7 +134,7 @@ const NetworkSecurity = () => {
           if (code) {
             // 3. Send DECODED string to backend
             try {
-              const res = await axios.post('http://localhost:8000/api/analyze/qr-text', {
+              const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/qr-text', {
                 content: code.data
               });
               setQrResult(res.data);
@@ -165,7 +172,7 @@ const NetworkSecurity = () => {
   }, []);
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">Network Security Scanner</h1>
         <p className="text-gray-400">Wireless landscape auditing and proactive defense</p>
@@ -175,7 +182,7 @@ const NetworkSecurity = () => {
         {/* WiFi Discovery */}
         <div className="lg:col-span-2 space-y-8">
           <div className="glass-morphism p-8 rounded-3xl relative overflow-hidden">
-            <div className="flex justify-between items-center mb-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 md:gap-0">
               <h3 className="text-xl font-bold text-white flex items-center gap-3">
                 <Wifi size={24} className="text-cyber-blue" />
                 WiFi Landscape
@@ -183,7 +190,7 @@ const NetworkSecurity = () => {
               <button
                 onClick={startScan}
                 disabled={isScanning}
-                className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-cyber-blue font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+                className="w-full md:w-auto px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-cyber-blue font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 whitespace-nowrap"
               >
                 <RefreshCw size={18} className={isScanning ? 'animate-spin' : ''} />
                 {isScanning ? 'SCANNING...' : 'SCAN NETWORKS'}
@@ -218,18 +225,18 @@ const NetworkSecurity = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
-                      className="p-5 rounded-2xl bg-black/40 border border-white/10 flex items-center gap-6 group hover:border-cyber-blue hover:border-opacity-30 transition-all"
+                      className="p-4 md:p-5 rounded-2xl bg-black/40 border border-white/10 flex items-center gap-4 md:gap-6 group hover:border-cyber-blue hover:border-opacity-30 transition-all"
                     >
-                      <div className={`p-4 rounded-xl ${net.status === 'Trusted' ? 'bg-cyber-green bg-opacity-10 text-cyber-green' :
+                      <div className={`p-3 md:p-4 rounded-xl shrink-0 ${net.status === 'Trusted' ? 'bg-cyber-green bg-opacity-10 text-cyber-green' :
                         net.status === 'Warning' ? 'bg-cyber-yellow bg-opacity-10 text-cyber-yellow' :
                           'bg-cyber-red bg-opacity-10 text-cyber-red'
                         }`}>
-                        <Wifi size={24} />
+                        <Wifi size={20} className="md:w-6 md:h-6" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-white font-bold">{net.ssid}</span>
-                          <span className="text-xs font-mono text-gray-500 uppercase">{net.security}</span>
+                          <span className="text-white font-bold truncate mr-2 text-sm md:text-base">{net.ssid}</span>
+                          <span className="text-[10px] md:text-xs font-mono text-gray-500 uppercase whitespace-nowrap">{net.security}</span>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="flex-1 h-1 bg-white bg-opacity-5 rounded-full overflow-hidden">
@@ -239,10 +246,10 @@ const NetworkSecurity = () => {
                               className={`h-full ${net.signal > 80 ? 'bg-cyber-green' : net.signal > 50 ? 'bg-cyber-yellow' : 'bg-cyber-red'}`}
                             />
                           </div>
-                          <span className="text-xs font-mono text-gray-400">{net.signal}%</span>
+                          <span className="text-[10px] md:text-xs font-mono text-gray-400 w-8 text-right">{net.signal}%</span>
                         </div>
                       </div>
-                      <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${net.status === 'Trusted' ? 'text-cyber-green border border-cyber-green' :
+                      <div className={`hidden md:block px-3 py-1 rounded-full text-[10px] font-bold uppercase whitespace-nowrap ${net.status === 'Trusted' ? 'text-cyber-green border border-cyber-green' :
                         net.status === 'Warning' ? 'text-cyber-yellow border border-cyber-yellow' :
                           'text-cyber-red border border-cyber-red'
                         }`}>

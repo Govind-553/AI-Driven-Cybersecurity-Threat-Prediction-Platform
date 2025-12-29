@@ -1,12 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Globe from 'react-globe.gl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crosshair, Globe as GlobeIcon, Map as MapIcon, Shield, Zap } from 'lucide-react';
 
 const AttackMap = () => {
-   const globeEl = useRef();
-   const [attacks, setAttacks] = useState<any[]>([]);
-   const [hoverData, setHoverData] = useState<any>(null);
+   interface Attack {
+      startLat: number;
+      startLng: number;
+      endLat: number;
+      endLng: number;
+      color: string;
+      type: string;
+      ip: string;
+   }
+
+   const globeEl = useRef<any>(undefined);
+   const [attacks, setAttacks] = useState<Attack[]>([]);
    const [stats, setStats] = useState({ total: 12849, rate: 42 });
    const [isMapMode, setIsMapMode] = useState(false);
 
@@ -61,7 +70,7 @@ const AttackMap = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-10 bg-[#050505] flex items-center justify-center p-20"
+                  className="absolute inset-0 z-10 bg-[#050505] flex items-center justify-center p-4 md:p-20"
                >
                   <div className="relative w-full h-full border border-white/10 rounded-3xl overflow-hidden bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-cover bg-center opacity-50 grayscale hover:grayscale-0 transition-all duration-1000">
                      {attacks.map((a, i) => (
@@ -80,17 +89,18 @@ const AttackMap = () => {
                      ))}
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                     <h2 className="text-4xl font-bold text-white opacity-10 uppercase tracking-[1em]">Flat Projection</h2>
+                     <h2 className="text-2xl md:text-4xl font-bold text-white opacity-10 uppercase tracking-[0.5em] md:tracking-[1em] text-center">Flat Projection</h2>
                   </div>
                </motion.div>
             )}
          </AnimatePresence>
 
+
          {/* Overlays */}
-         <div className="absolute top-8 left-8 z-20 space-y-4">
-            <div className="glass-morphism p-6 rounded-2xl border-l-4 border-cyber-blue w-64">
+         <div className="absolute top-20 left-4 md:top-8 md:left-8 z-20 space-y-4 pointer-events-none md:pointer-events-auto w-[calc(100%-2rem)] md:w-auto">
+            <div className="glass-morphism p-4 md:p-6 rounded-2xl border-l-4 border-cyber-blue w-full md:w-64 pointer-events-auto shadow-lg backdrop-blur-md bg-black/40">
                <div className="text-xs text-cyber-blue font-mono mb-1 tracking-widest uppercase">Global Attack Rate</div>
-               <div className="text-3xl font-bold text-white font-mono">{stats.rate} <span className="text-sm font-normal text-gray-500 uppercase tracking-tighter">Attacks/Sec</span></div>
+               <div className="text-2xl md:text-3xl font-bold text-white font-mono">{stats.rate} <span className="text-[10px] md:text-sm font-normal text-gray-500 uppercase tracking-tighter">Attacks/Sec</span></div>
                <div className="mt-4 flex items-center gap-2">
                   <div className="flex-1 h-1 bg-white bg-opacity-5 rounded-full overflow-hidden">
                      <motion.div
@@ -101,7 +111,7 @@ const AttackMap = () => {
                </div>
             </div>
 
-            <div className="glass-morphism p-4 rounded-2xl w-64 space-y-3">
+            <div className="glass-morphism p-4 rounded-2xl w-full md:w-64 space-y-3 hidden md:block pointer-events-auto">
                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
                   <Crosshair size={14} className="text-cyber-red" />
                   Live Vectors
@@ -118,22 +128,22 @@ const AttackMap = () => {
             </div>
          </div>
 
-         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 glass-morphism px-8 py-4 rounded-full flex items-center gap-8 border-white border-opacity-10">
-            <div className="flex items-center gap-3">
-               <div className="w-3 h-3 rounded-full bg-cyber-red shadow-[0_0_8px_#ff003c]"></div>
-               <span className="text-xs font-bold text-white uppercase tracking-widest">High Severity</span>
+         <div className="absolute bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:right-auto z-20 glass-morphism p-4 md:px-8 md:py-4 rounded-2xl md:rounded-full flex flex-row flex-wrap md:flex-nowrap items-center justify-between md:justify-center gap-3 md:gap-8 border-white border-opacity-10 pointer-events-auto">
+            <div className="flex items-center gap-2 md:gap-3">
+               <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-cyber-red shadow-[0_0_8px_#ff003c]"></div>
+               <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-widest">High</span>
             </div>
-            <div className="flex items-center gap-3">
-               <div className="w-3 h-3 rounded-full bg-cyber-yellow shadow-[0_0_8px_#fdf500]"></div>
-               <span className="text-xs font-bold text-white uppercase tracking-widest">Medium Severity</span>
+            <div className="flex items-center gap-2 md:gap-3">
+               <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-cyber-yellow shadow-[0_0_8px_#fdf500]"></div>
+               <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-widest">Med</span>
             </div>
-            <div className="flex items-center gap-3">
-               <div className="w-3 h-3 rounded-full bg-cyber-blue shadow-[0_0_8px_#00f2ff]"></div>
-               <span className="text-xs font-bold text-white uppercase tracking-widest">System Block</span>
+            <div className="flex items-center gap-2 md:gap-3">
+               <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-cyber-blue shadow-[0_0_8px_#00f2ff]"></div>
+               <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-widest">Block</span>
             </div>
          </div>
 
-         <div className="absolute top-8 right-8 z-20 glass-morphism p-6 rounded-2xl w-80">
+         <div className="absolute top-20 right-4 md:top-8 md:right-8 z-20 glass-morphism p-4 md:p-6 rounded-2xl w-64 md:w-80 hidden md:block">
             <div className="flex items-center justify-between mb-6">
                <h3 className="text-lg font-bold text-white">Threat Intelligence</h3>
                <Shield size={20} className="text-cyber-green" />
@@ -164,7 +174,7 @@ const AttackMap = () => {
             </div>
          </div>
 
-         <div className="absolute bottom-8 right-8 z-20 flex flex-col gap-2">
+         <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-20 flex flex-col gap-2 pointer-events-auto">
             <button
                onClick={() => setIsMapMode(false)}
                className={`p-3 rounded-xl transition-all ${!isMapMode ? 'bg-cyber-blue text-cyber-black shadow-neon-blue' : 'glass-morphism text-white hover:bg-white/10'}`}

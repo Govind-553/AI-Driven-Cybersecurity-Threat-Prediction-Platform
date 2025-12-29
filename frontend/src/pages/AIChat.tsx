@@ -11,7 +11,6 @@ import {
    History,
    Terminal,
    Cpu,
-   Zap,
    Sparkles
 } from 'lucide-react';
 
@@ -21,7 +20,14 @@ import remarkGfm from 'remark-gfm';
 
 const AIChat = () => {
    const [input, setInput] = useState('');
-   const [messages, setMessages] = useState<any[]>([
+   interface Message {
+      id: number;
+      type: 'ai' | 'user';
+      text: string;
+      timestamp: string;
+   }
+
+   const [messages, setMessages] = useState<Message[]>([
       {
          id: 1,
          type: 'ai',
@@ -42,7 +48,7 @@ const AIChat = () => {
       if (e) e.preventDefault();
       if (!input.trim()) return;
 
-      const userMsg = {
+      const userMsg: Message = {
          id: Date.now(),
          type: 'user',
          text: input,
@@ -54,16 +60,16 @@ const AIChat = () => {
       setIsTyping(true);
 
       try {
-         const response = await axios.post('http://localhost:8000/api/chat', { message: input });
-         const aiMsg = {
-            id: Date.now() + 1,
-            type: 'ai',
-            text: response.data.response,
-            timestamp: new Date().toLocaleTimeString()
-         };
+         const response = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/chat', { message: input });
+            const aiMsg: Message = {
+               id: Date.now() + 1,
+               type: 'ai',
+               text: response.data.response,
+               timestamp: new Date().toLocaleTimeString()
+            };
          setMessages(prev => [...prev, aiMsg]);
       } catch (error) {
-         const aiMsg = {
+         const aiMsg: Message = {
             id: Date.now() + 1,
             type: 'ai',
             text: "I'm having trouble connecting to my neural core. Please ensure the CyberSpy Backend is active.",
@@ -83,22 +89,22 @@ const AIChat = () => {
    ];
 
    return (
-      <div className="h-[calc(100vh-64px)] p-8 flex flex-col gap-6">
-         <div className="flex justify-between items-center">
+      <div className="h-screen md:h-[calc(100vh-64px)] p-4 md:p-8 flex flex-col gap-6 overflow-hidden">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-12 md:mt-0">
             <div>
-               <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase flex items-center gap-3">
+               <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tighter uppercase flex items-center gap-3">
                   <Bot className="text-cyber-blue" />
                   SIMBA Intelligence
                </h1>
-               <p className="text-gray-400">CyberSpy's Neural Security Assistant</p>
+               <p className="text-gray-400 text-sm md:text-base">CyberSpy's Neural Security Assistant</p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 self-end md:self-auto">
                <button className="p-3 glass-morphism rounded-xl text-gray-400 hover:text-white transition-all"><History size={20} /></button>
                <button className="p-3 glass-morphism rounded-xl text-gray-400 hover:text-white transition-all"><Terminal size={20} /></button>
             </div>
          </div>
 
-         <div className="flex-1 flex gap-8 min-h-0">
+         <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0">
             {/* Chat Window */}
             <div className="flex-1 glass-morphism rounded-3xl flex flex-col overflow-hidden">
                <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide" ref={scrollRef}>
@@ -222,7 +228,7 @@ const AIChat = () => {
             </div>
 
             {/* Sidebar Intel */}
-            <div className="w-80 flex flex-col gap-6">
+            <div className="w-full lg:w-80 flex flex-col gap-6 hidden lg:flex">
                <div className="glass-morphism p-6 rounded-3xl bg-gradient-to-br from-cyber-blue/10 to-transparent">
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                      <Sparkles size={20} className="text-cyber-blue" />

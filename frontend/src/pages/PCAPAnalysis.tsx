@@ -1,20 +1,12 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import {
    FileCode,
-   Upload,
-   Search,
-   Filter,
-   Network,
    Activity,
-   ArrowRightLeft,
-   Terminal,
-   ShieldCheck,
    Zap
 } from 'lucide-react';
 import {
    ResponsiveContainer,
-   BarChart, Bar, Cell,
+   BarChart, Bar,
    XAxis, YAxis, Tooltip,
    LineChart, Line,
    CartesianGrid
@@ -23,8 +15,16 @@ import {
 import axios from 'axios';
 
 const PCAPAnalysis = () => {
+   interface PcapData {
+      timeline: { time: string; count: number }[];
+      packets: number;
+      duration: string;
+      suspicious: number;
+      protocols: { name: string; value: number; fill: string }[];
+   }
+   
    const [isUploading, setIsUploading] = useState(false);
-   const [pcapData, setPcapData] = useState<any>(null);
+   const [pcapData, setPcapData] = useState<PcapData | null>(null);
    const [error, setError] = useState('');
 
    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,13 +34,13 @@ const PCAPAnalysis = () => {
          formData.append('file', e.target.files[0]);
 
          try {
-            const res = await axios.post('http://localhost:8000/api/analyze/pcap', formData);
+            const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/pcap', formData);
             setPcapData({
                packets: res.data.stats.packets,
                duration: res.data.stats.duration,
                suspicious: res.data.stats.suspicious,
-               protocols: res.data.chart.map((c: any) => ({ ...c, fill: '#00f2ff' })), // Simplify color logic
-               timeline: res.data.timeline.map((t: any) => ({ time: t.time, count: t.len }))
+               protocols: res.data.chart.map((c: { name: string; value: number }) => ({ ...c, fill: '#00f2ff' })), // Simplify color logic
+               timeline: res.data.timeline.map((t: { time: string; len: number }) => ({ time: t.time, count: t.len }))
             });
          } catch (err: any) {
             setError("Analysis Failed: " + (err.response?.data?.detail || err.message));
@@ -52,7 +52,7 @@ const PCAPAnalysis = () => {
    };
 
    return (
-      <div className="p-8 space-y-8">
+      <div className="p-4 md:p-8 space-y-8">
          <div>
             <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">PCAP Forensics</h1>
             <p className="text-gray-400">Low-level packet inspection and protocol anomaly detection</p>
@@ -194,7 +194,7 @@ const PCAPAnalysis = () => {
                            </ResponsiveContainer>
                         </div>
                         <div className="mt-4 space-y-2">
-                           {pcapData.protocols.map((p: any) => (
+                           {pcapData.protocols.map((p) => (
                               <div key={p.name} className="flex justify-between items-center text-sm">
                                  <span className="text-gray-500">{p.name}</span>
                                  <span className="text-white font-mono">{p.value}</span>

@@ -20,9 +20,18 @@ import {
 import axios from 'axios';
 
 const FileAnalysis = () => {
+  interface ScannedFile {
+    name: string;
+    size: string;
+    type: string;
+    score: number;
+    threats: string[];
+    summary?: string;
+  }
+  
   const [isDragging, setIsDragging] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [scannedFiles, setScannedFiles] = useState<any[]>([]);
+  const [scannedFiles, setScannedFiles] = useState<ScannedFile[]>([]);
   const [progress, setProgress] = useState(0);
   const [urlInput, setUrlInput] = useState("");
   const [isUrlScanning, setIsUrlScanning] = useState(false);
@@ -47,7 +56,7 @@ const FileAnalysis = () => {
       formData.append('file', files[i]);
 
       try {
-        const res = await axios.post('http://localhost:8000/api/analyze/file', formData, {
+        const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/file', formData, {
           onUploadProgress: (p) => {
             const percent = p.total ? Math.round((p.loaded * 100) / p.total) : 50;
             setProgress(percent);
@@ -83,7 +92,7 @@ const FileAnalysis = () => {
     if (!urlInput) return;
     setIsUrlScanning(true);
     try {
-      const res = await axios.post('http://localhost:8000/api/analyze/url', { url: urlInput });
+      const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/url', { url: urlInput });
       setScannedFiles(prev => [res.data, ...prev]);
       setUrlInput("");
     } catch (err) {
@@ -100,7 +109,7 @@ const FileAnalysis = () => {
   const COLORS = ['#00ff9f', '#fdf500', '#ff003c'];
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">Static File Analysis</h1>
         <p className="text-gray-400">Deep inspection of executables, documents, and scripts</p>
@@ -111,14 +120,14 @@ const FileAnalysis = () => {
         <div className="lg:col-span-2 space-y-10"> {/* Increased spacing */}
           {/* URL Scan Section */}
           {/* URL Scan Section */}
-          <div className="glass-morphism p-4 rounded-2xl flex gap-4 items-center">
-            <div className="p-3 bg-cyber-blue/10 rounded-xl text-cyber-blue">
+          <div className="glass-morphism p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+            <div className="hidden md:block p-3 bg-cyber-blue/10 rounded-xl text-cyber-blue">
               <Search size={24} />
             </div>
             <input
               type="text"
-              placeholder="Enter URL to scan (e.g., http://malicious-site.com)..."
-              className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500 font-mono"
+              placeholder="Enter URL to scan..."
+              className="flex-1 bg-transparent border border-white/10 md:border-none rounded-xl md:rounded-none p-3 md:p-0 outline-none text-white placeholder-gray-500 font-mono"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleUrlScan()}
@@ -126,7 +135,7 @@ const FileAnalysis = () => {
             <button
               onClick={handleUrlScan}
               disabled={isUrlScanning}
-              className="px-6 py-2 bg-cyber-blue text-cyber-black font-bold rounded-xl hover:shadow-neon-blue transition-all disabled:opacity-50"
+              className="px-6 py-3 md:py-2 bg-cyber-blue text-cyber-black font-bold rounded-xl hover:shadow-neon-blue transition-all disabled:opacity-50 whitespace-nowrap"
             >
               {isUrlScanning ? 'SCANNING...' : 'SCAN URL'}
             </button>

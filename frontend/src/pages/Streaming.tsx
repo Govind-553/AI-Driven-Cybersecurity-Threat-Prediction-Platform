@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Wifi,
@@ -21,10 +21,18 @@ import {
 } from 'recharts';
 
 const Streaming = () => {
+  interface Threat {
+    id: number | string;
+    type: string;
+    severity: string;
+    ip: string;
+    timestamp: string;
+  }
+  
   const [isConnected, setIsConnected] = useState(false);
-  const [streamUrl, setStreamUrl] = useState('ws://localhost:8000/ws/stream');
-  const [threats, setThreats] = useState<any[]>([]);
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [streamUrl, setStreamUrl] = useState('https://ai-cybersecurity-guard.onrender.com/ws/stream');
+  const [threats, setThreats] = useState<Threat[]>([]);
+  const [chartData, setChartData] = useState<{ time: string; count: number }[]>([]);
   const [metrics, setMetrics] = useState({
     latency: '0ms',
     packetLoss: '0%',
@@ -55,6 +63,7 @@ const Streaming = () => {
       setMetrics(prev => ({
         ...prev,
         throughput: throughputDisplay,
+        packetLoss: packetLossDisplay
       }));
 
       // Reset counters
@@ -151,7 +160,7 @@ const Streaming = () => {
   }, [isConnected]);
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">Streaming Analysis</h1>

@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import {
-   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
-   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+   BarChart, Bar, PieChart, Pie, Cell,
+   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
    AreaChart, Area, ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import {
-   Download,
    Calendar,
    Filter,
    TrendingUp,
@@ -31,7 +29,7 @@ const Analytics = () => {
       { name: 'Africa', attacks: 2100, blocked: 2000 },
    ]);
 
-   const [industryData, setIndustryData] = useState([
+   const [industryData] = useState([
       { name: 'Finance', value: 35 },
       { name: 'Healthcare', value: 25 },
       { name: 'Gov', value: 20 },
@@ -81,7 +79,7 @@ const Analytics = () => {
    }, []);
 
    return (
-      <div className="p-8 space-y-8">
+      <div className="p-4 md:p-8 space-y-8">
          <div className="flex justify-between items-center">
             <div>
                <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">Security Analytics</h1>
@@ -165,7 +163,7 @@ const Analytics = () => {
                            paddingAngle={5}
                            dataKey="value"
                         >
-                           {industryData.map((entry, index) => (
+                           {industryData.map((_, index) => (
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                            ))}
                         </Pie>

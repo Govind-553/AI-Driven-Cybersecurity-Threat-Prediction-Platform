@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
-  AlertTriangle,
   Activity,
   Globe,
   Lock,
@@ -12,9 +11,36 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts';
-import axios from 'axios';
 
 const COLORS = ['#00f2ff', '#ff003c', '#bc00ff', '#fdf500'];
+
+interface ChartData {
+  name: string;
+  threats: number;
+  [key: string]: any;
+}
+
+interface FeedItem {
+  id: number;
+  type: string;
+  ip: string;
+  time: string;
+  severity: string;
+  color: string;
+}
+
+interface PieData {
+  name: string;
+  value: number;
+  [key: string]: any;
+}
+
+interface SeverityData {
+  name: string;
+  value: number;
+  fill: string;
+  [key: string]: any;
+}
 
 // Animation Component for Numbers
 const Counter = ({ value }: { value: number }) => {
@@ -38,7 +64,15 @@ const Counter = ({ value }: { value: number }) => {
   return <>{count.toLocaleString()}</>;
 };
 
-const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
+interface StatCardProps {
+  title: string;
+  value: number;
+  icon: React.ElementType;
+  color: string;
+  trend?: number;
+}
+
+const StatCard = ({ title, value, icon: Icon, color, trend }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -70,7 +104,7 @@ const Dashboard = () => {
     networks_secured: 48
   });
 
-  const [chartData, setChartData] = useState([
+  const [chartData, setChartData] = useState<ChartData[]>([
     { name: '00:00', threats: 400 },
     { name: '04:00', threats: 300 },
     { name: '08:00', threats: 600 },
@@ -80,20 +114,20 @@ const Dashboard = () => {
     { name: '23:59', threats: 700 },
   ]);
 
-  const [pieData, setPieData] = useState([
+  const [pieData, setPieData] = useState<PieData[]>([
     { name: 'DDoS', value: 400 },
     { name: 'Malware', value: 300 },
     { name: 'Phishing', value: 300 },
     { name: 'SQLi', value: 200 },
   ]);
 
-  const [feedItems, setFeedItems] = useState([
+  const [feedItems, setFeedItems] = useState<FeedItem[]>([
     { id: 1, type: 'DDoS', ip: '192.168.1.101', time: '12:42:05', severity: 'CRITICAL', color: 'cyber-red' },
     { id: 2, type: 'SQL Injection', ip: '192.168.1.102', time: '12:42:15', severity: 'WARNING', color: 'cyber-yellow' },
     { id: 3, type: 'Malware', ip: '10.0.0.55', time: '12:42:30', severity: 'CRITICAL', color: 'cyber-red' },
   ]);
 
-  const [severityData, setSeverityData] = useState([
+  const [severityData, setSeverityData] = useState<SeverityData[]>([
     { name: 'Critical', value: 45, fill: '#ff003c' },
     { name: 'High', value: 80, fill: '#ff7b00' },
     { name: 'Medium', value: 120, fill: '#fdf500' },
@@ -162,7 +196,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">Operations Dashboard</h1>
@@ -222,7 +256,7 @@ const Dashboard = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {pieData.map((entry, index) => (
+                  {pieData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

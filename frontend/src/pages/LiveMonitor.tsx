@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
    ShieldAlert,
@@ -21,7 +21,16 @@ import {
 import axios from 'axios';
 
 const LiveMonitor = () => {
-   const [metrics, setMetrics] = useState({
+   interface Metrics {
+      threats: number;
+      blocked: number;
+      cpu: number;
+      memory: number;
+      latency: number;
+      accuracy: number;
+   }
+
+   const [metrics, setMetrics] = useState<Metrics>({
       threats: 1420,
       blocked: 1380,
       cpu: 0,
@@ -30,19 +39,28 @@ const LiveMonitor = () => {
       accuracy: 99.8
    });
 
-   const [events, setEvents] = useState<any[]>([]);
+   interface MonitorEvent {
+      id: number;
+      type: string;
+      msg: string;
+      time: string;
+   }
+
+   const [events, setEvents] = useState<MonitorEvent[]>([]);
 
    useEffect(() => {
       const fetchStats = async () => {
          try {
-            const res = await axios.get('http://localhost:8000/api/dashboard/stats');
+            const res = await axios.get('https://ai-cybersecurity-guard.onrender.com/api/dashboard/stats');
             setMetrics(prev => ({
                ...prev,
                cpu: res.data.system_load.cpu,
                memory: res.data.system_load.memory,
-               threats: res.data.active_attacks + prev.threats // Accumulate simulated count
+               threats: res.data.active_attacks + prev.threats 
             }));
-         } catch (e) { }
+         } catch (error) {
+            console.error("Failed to fetch stats", error);
+         }
       };
 
       const interval = setInterval(() => {
@@ -67,7 +85,7 @@ const LiveMonitor = () => {
    }, []);
 
    return (
-      <div className="p-8 space-y-8">
+      <div className="p-4 md:p-8 space-y-8">
          <div className="flex justify-between items-center">
             <div>
                <h1 className="text-3xl font-bold text-white mb-2 tracking-tighter uppercase">Operations Center</h1>
@@ -168,7 +186,7 @@ const LiveMonitor = () => {
                   </div>
                   <div className="p-0">
                      <AnimatePresence initial={false}>
-                        {events.map((e, i) => (
+                        {events.map((e) => (
                            <motion.div
                               key={e.id}
                               initial={{ opacity: 0, x: -20 }}

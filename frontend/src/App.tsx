@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import FileAnalysis from './pages/Analysis';
@@ -12,11 +13,29 @@ import PCAPAnalysis from './pages/PCAPAnalysis';
 import LiveMonitor from './pages/LiveMonitor';
 
 function App() {
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
   return (
     <Router>
-      <div className="flex min-h-screen bg-cyber-black animated-bg">
-        <Sidebar />
-        <main className="flex-1 h-screen overflow-y-auto overflow-x-hidden">
+      <div className="flex min-h-screen bg-cyber-black animated-bg relative">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        
+        {/* Mobile Menu Button - Absolute positioned to sit on top of content */}
+        <button 
+          onClick={() => setSidebarOpen(true)}
+          className="md:hidden fixed top-4 left-4 z-40 p-2 glass-morphism rounded-lg text-cyber-blue hover:text-white transition-colors"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        <main className="flex-1 h-screen overflow-y-auto overflow-x-hidden pt-16 md:pt-0">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/analysis" element={<FileAnalysis />} />
