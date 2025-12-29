@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileSearch,
@@ -8,10 +8,15 @@ import {
   MessageSquare,
   BarChart3,
   FileCode,
-  ShieldAlert
+  ShieldAlert,
+  LogOut,
+  User,
+  ChevronUp
 } from 'lucide-react';
 
 import { X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,8 +24,17 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const handleLogout = async () => {
+     await signOut();
+     navigate('/');
+  };
+
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: FileSearch, label: 'File Analysis', path: '/analysis' },
     { icon: Activity, label: 'Streaming', path: '/streaming' },
     { icon: Network, label: 'Network Security', path: '/network' },
@@ -65,12 +79,36 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         ))}
       </nav>
 
-      <div className="mt-auto p-4 glass-morphism rounded-2xl border-cyber-blue border-opacity-20">
-        <div className="text-xs text-gray-500 mb-1">System Status</div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-cyber-green rounded-full animate-pulse shadow-[0_0_8px_#00ff9f]"></div>
-          <span className="text-sm font-mono text-cyber-green uppercase tracking-widest">Secure</span>
-        </div>
+      {/* User Profile Section */}
+      <div className="mt-auto relative">
+         {showProfileMenu && (
+            <div className="absolute bottom-full left-0 w-full mb-2 p-3 glass-morphism rounded-xl border border-white/10 shadow-lg animate-in slide-in-from-bottom-2 fade-in">
+               <div className="text-sm font-bold text-white mb-1 truncate">{user?.email || 'Agent'}</div>
+               <div className="text-xs text-gray-400 mb-3 truncate">Level 5 Clearance</div>
+               <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors text-xs font-bold uppercase"
+               >
+                  <LogOut size={14} /> Sign Out
+               </button>
+            </div>
+         )}
+         
+         <button 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="w-full p-3 glass-morphism rounded-2xl border-cyber-blue border-opacity-20 flex items-center gap-3 hover:bg-white/5 transition-colors group"
+         >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyber-blue to-cyber-purple p-0.5">
+               <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                  <User size={14} className="text-white" />
+               </div>
+            </div>
+            <div className="flex-1 text-left">
+               <div className="text-xs font-bold text-white truncate max-w-[100px]">{user?.email?.split('@')[0] || 'User'}</div>
+               <div className="text-[10px] text-gray-500">View Profile</div>
+            </div>
+            <ChevronUp size={16} className={`text-gray-400 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
+         </button>
       </div>
     </aside>
   );

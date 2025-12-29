@@ -88,26 +88,55 @@ const AIChat = () => {
       "Check file for malware"
    ];
 
+   const [activeTab, setActiveTab] = useState<'chat' | 'intel'>('chat');
+
    return (
-      <div className="h-screen md:h-[calc(100vh-64px)] p-4 md:p-8 flex flex-col gap-6 overflow-hidden">
-         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-12 md:mt-0">
+      <div className="h-full flex flex-col gap-4 md:gap-6 overflow-hidden p-2 md:p-8">
+         <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-4 mt-2 md:mt-0">
             <div>
-               <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tighter uppercase flex items-center gap-3">
-                  <Bot className="text-cyber-blue" />
+               <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2 tracking-tighter uppercase flex items-center gap-2 md:gap-3">
+                  <Bot className="text-cyber-blue w-6 h-6 md:w-8 md:h-8" />
                   SIMBA Intelligence
                </h1>
-               <p className="text-gray-400 text-sm md:text-base">CyberSpy's Neural Security Assistant</p>
+               <p className="text-gray-400 text-xs md:text-base">CyberSpy's Neural Security Assistant</p>
             </div>
-            <div className="flex gap-4 self-end md:self-auto">
-               <button className="p-3 glass-morphism rounded-xl text-gray-400 hover:text-white transition-all"><History size={20} /></button>
-               <button className="p-3 glass-morphism rounded-xl text-gray-400 hover:text-white transition-all"><Terminal size={20} /></button>
+            
+            {/* Mobile View Toggles */}
+            <div className="flex lg:hidden bg-black/40 p-1 rounded-xl border border-white/10 w-full md:w-auto mt-2 md:mt-0">
+               <button 
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${
+                     activeTab === 'chat' 
+                        ? 'bg-cyber-blue text-cyber-black shadow-neon-blue' 
+                        : 'text-gray-400 hover:text-white'
+                  }`}
+               >
+                  Chat
+               </button>
+               <button 
+                  onClick={() => setActiveTab('intel')}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${
+                     activeTab === 'intel' 
+                        ? 'bg-cyber-purple text-white shadow-[0_0_15px_rgba(188,0,255,0.3)]' 
+                        : 'text-gray-400 hover:text-white'
+                  }`}
+               >
+                  Intel
+               </button>
+            </div>
+
+            <div className="flex gap-2 md:gap-4 absolute top-0 right-0 md:static md:self-auto">
+               <button className="p-2 md:p-3 glass-morphism rounded-xl text-gray-400 hover:text-white transition-all"><History size={18} className="md:w-5 md:h-5" /></button>
+               <button className="p-2 md:p-3 glass-morphism rounded-xl text-gray-400 hover:text-white transition-all"><Terminal size={18} className="md:w-5 md:h-5" /></button>
             </div>
          </div>
 
          <div className="flex-1 flex flex-col lg:flex-row gap-8 min-h-0">
             {/* Chat Window */}
-            <div className="flex-1 glass-morphism rounded-3xl flex flex-col overflow-hidden">
-               <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide" ref={scrollRef}>
+            <div className={`flex-1 glass-morphism rounded-3xl flex flex-col overflow-hidden ${
+               activeTab === 'chat' ? 'flex' : 'hidden lg:flex'
+            }`}>
+               <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 scrollbar-hide" ref={scrollRef}>
                   <AnimatePresence initial={false}>
                      {messages.map((msg) => (
                         <motion.div
@@ -116,13 +145,13 @@ const AIChat = () => {
                            animate={{ opacity: 1, y: 0, scale: 1 }}
                            className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
-                           <div className={`flex gap-4 max-w-[80%] ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${msg.type === 'user' ? 'bg-cyber-purple' : 'bg-cyber-blue shadow-neon-blue'
+                           <div className={`flex gap-4 max-w-[85%] md:max-w-[80%] ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                              <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${msg.type === 'user' ? 'bg-cyber-purple' : 'bg-cyber-blue shadow-neon-blue'
                                  }`}>
-                                 {msg.type === 'user' ? <User size={20} className="text-white" /> : <Bot size={20} className="text-cyber-black" />}
+                                 {msg.type === 'user' ? <User size={16} className="md:w-5 md:h-5 text-white" /> : <Bot size={16} className="md:w-5 md:h-5 text-cyber-black" />}
                               </div>
                               <div className="space-y-1">
-                                 <div className={`p-4 rounded-2xl text-sm leading-relaxed ${msg.type === 'user'
+                                 <div className={`p-3 md:p-4 rounded-2xl text-sm leading-relaxed ${msg.type === 'user'
                                     ? 'bg-cyber-purple/20 border border-cyber-purple/50 text-white shadow-[0_0_15px_rgba(188,0,255,0.1)]'
                                     : 'bg-gray-900/80 border border-white/10 text-gray-100 shadow-lg backdrop-blur-md'
                                     }`}>
@@ -183,11 +212,11 @@ const AIChat = () => {
                   </AnimatePresence>
                   {isTyping && (
                      <div className="flex justify-start">
-                        <div className="flex gap-4 max-w-[80%]">
-                           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-cyber-blue shadow-neon-blue">
-                              <Bot size={20} className="text-cyber-black" />
+                        <div className="flex gap-4 max-w-[85%] md:max-w-[80%]">
+                           <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-cyber-blue shadow-neon-blue">
+                              <Bot size={16} className="md:w-5 md:h-5 text-cyber-black" />
                            </div>
-                           <div className="p-4 rounded-2xl bg-gray-900/80 border border-white/10 flex gap-1">
+                           <div className="p-3 md:p-4 rounded-2xl bg-gray-900/80 border border-white/10 flex gap-1">
                               <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 bg-cyber-blue rounded-full" />
                               <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-cyber-blue rounded-full" />
                               <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-cyber-blue rounded-full" />
@@ -197,13 +226,13 @@ const AIChat = () => {
                   )}
                </div>
 
-               <div className="p-6 border-t border-white border-opacity-5 space-y-4">
-                  <div className="flex gap-2">
+               <div className="p-4 md:p-6 border-t border-white border-opacity-5 space-y-3 md:space-y-4">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                      {suggestions.map((s) => (
                         <button
                            key={s}
                            onClick={() => { setInput(s); }}
-                           className="px-3 py-1.5 rounded-full bg-black/40 border border-white/20 text-[10px] text-gray-300 hover:text-cyber-blue hover:border-cyber-blue transition-all uppercase font-bold"
+                           className="whitespace-nowrap px-3 py-1.5 rounded-full bg-black/40 border border-white/20 text-[10px] text-gray-300 hover:text-cyber-blue hover:border-cyber-blue transition-all uppercase font-bold flex-shrink-0"
                         >
                            {s}
                         </button>
@@ -214,13 +243,13 @@ const AIChat = () => {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask SIMBA about threats, files, or network security..."
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-cyber-blue/50 focus:bg-black/60 transition-all pr-32 backdrop-blur-sm"
+                        placeholder="Ask SIMBA..."
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-sm md:text-base text-white placeholder-gray-500 focus:outline-none focus:border-cyber-blue/50 focus:bg-black/60 transition-all pr-24 md:pr-32 backdrop-blur-sm"
                      />
-                     <div className="absolute right-2 top-2 bottom-2 flex gap-2">
-                        <button type="button" className="p-2 text-gray-500 hover:text-white transition-colors"><Mic size={20} /></button>
-                        <button type="submit" className="px-6 rounded-xl bg-cyber-blue text-cyber-black font-bold flex items-center gap-2 hover:shadow-neon-blue transition-all">
-                           <Send size={18} />
+                     <div className="absolute right-2 top-1.5 bottom-1.5 md:top-2 md:bottom-2 flex gap-2">
+                        <button type="button" className="p-2 text-gray-500 hover:text-white transition-colors"><Mic size={18} className="md:w-5 md:h-5" /></button>
+                        <button type="submit" className="px-4 md:px-6 rounded-xl bg-cyber-blue text-cyber-black font-bold flex items-center gap-2 hover:shadow-neon-blue transition-all">
+                           <Send size={16} className="md:w-[18px] md:h-[18px]" />
                         </button>
                      </div>
                   </form>
@@ -228,7 +257,9 @@ const AIChat = () => {
             </div>
 
             {/* Sidebar Intel */}
-            <div className="w-full lg:w-80 flex flex-col gap-6 hidden lg:flex">
+            <div className={`w-full lg:w-80 flex-col gap-6 ${
+               activeTab === 'intel' ? 'flex' : 'hidden lg:flex'
+            }`}>
                <div className="glass-morphism p-6 rounded-3xl bg-gradient-to-br from-cyber-blue/10 to-transparent">
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                      <Sparkles size={20} className="text-cyber-blue" />
