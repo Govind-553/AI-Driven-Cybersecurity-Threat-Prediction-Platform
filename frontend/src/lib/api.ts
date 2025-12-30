@@ -31,8 +31,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Handle token expiration if needed, or redirect to login
-      // For Supabase, the getSession in request interceptor usually handles refresh
+      
     }
     return Promise.reject(error);
   }

@@ -9,7 +9,7 @@ from src.auth import verify_token
 router = APIRouter()
 
 @router.get("/stats")
-def dashboard_stats(user=Depends(verify_token)):
+def dashboard_stats(auth_data=Depends(verify_token)):
     sys = get_system_metrics()
     return {
         "global_threats": 842000 + int(time.time() % 10000), 
@@ -23,10 +23,20 @@ import subprocess
 import re
 
 @router.get("/network/scan")
-def network_scan(user=Depends(verify_token)):
+def network_scan(auth_data=Depends(verify_token)):
+    user = auth_data['user']
+    import platform
+    if platform.system() != "Windows":
+        # Cloud/Linux Environment Simulation
+        return [
+            {"ssid": "Cloud_Simulated_Net", "security": "WPA3", "signal": 95, "status": "Trusted"},
+            {"ssid": "External_Gateway_01", "security": "WPA2", "signal": 88, "status": "Warning"},
+            {"ssid": "Rogue_Access_Point", "security": "OPEN", "signal": 45, "status": "Danger"}
+        ]
+    
     try:
         # Run netsh to get networks
-        output = subprocess.check_output(["netsh", "wlan", "show", "networks", "mode=bssid"], shell=True).decode("utf-8", errors="ignore")
+        output = subprocess.check_output(["netsh", "wlan", "show", "networks"], shell=True).decode("utf-8", errors="ignore")
         
         networks = []
         current_net = {}

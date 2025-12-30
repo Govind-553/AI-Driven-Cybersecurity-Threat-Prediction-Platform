@@ -12,8 +12,8 @@ import {
   Search,
 } from 'lucide-react';
 
-import axios from 'axios';
 import jsQR from 'jsqr';
+import api from '../lib/api';
 
 const NetworkSecurity = () => {
   interface Network {
@@ -42,7 +42,7 @@ const NetworkSecurity = () => {
     setIsScanning(true);
     setNetworks([]);
     try {
-      const res = await axios.get('https://ai-cybersecurity-guard.onrender.com/api/network/scan');
+      const res = await api.get('/api/network/scan');
       setNetworks(res.data);
     } catch (e) {
       console.error("Scan failed", e);
@@ -55,7 +55,7 @@ const NetworkSecurity = () => {
     if (!url) return;
     setUrlStatus('checking');
     try {
-      const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/url', { url });
+      const res = await api.post('/api/analyze/url', { url });
       if (res.data.score > 5) {
         setUrlStatus('danger');
       } else {
@@ -134,7 +134,7 @@ const NetworkSecurity = () => {
           if (code) {
             // 3. Send DECODED string to backend
             try {
-              const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/qr-text', {
+              const res = await api.post('/api/analyze/qr-text', {
                 content: code.data
               });
               setQrResult(res.data);

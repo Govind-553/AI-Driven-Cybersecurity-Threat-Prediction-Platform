@@ -15,8 +15,18 @@ class StorageService:
             except Exception as e:
                 print(f"Supabase Connection Error: {e}")
 
-    def save_analysis(self, data: dict):
-        if not self.client:
+    def save_analysis(self, data: dict, user_id=None, token=None):
+        target_client = self.client
+        
+        # If we have a token, we should try to use it for RLS
+        if token:
+            try:
+                target_client = create_client(self.url, self.key)
+                target_client.auth.set_session(token, "dummy_refresh") # We only need access token
+            except Exception as e:
+                print(f"Client Auth Scope Error: {e}")
+
+        if not target_client:
             print("Supabase client not initialized")
             return None
         
@@ -27,10 +37,11 @@ class StorageService:
                 "risk_score": data.get("risk_score", 0),
                 "summary": data.get("summary", ""),
                 "details": data.get("technical_details", {}),
-                "source": data.get("source", "unknown")
+                "source": data.get("source", "unknown"),
+                "user_id": user_id  # Explicitly link user
             }
             
-            response = self.client.table("analysis_results").insert(record).execute()
+            response = target_client.table("analysis_results").insert(record).execute()
             return response
         except Exception as e:
             print(f"Error saving to Supabase: {e}")

@@ -42,7 +42,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
                 detail="Invalid token or expired session",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return user
+        return {"user": user.user, "token": token}
     except Exception as e:
         print(f"Auth Error: {e}")
         raise HTTPException(
