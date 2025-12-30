@@ -42,10 +42,23 @@ const NetworkSecurity = () => {
     setIsScanning(true);
     setNetworks([]);
     try {
-      const res = await api.get('/api/network/scan');
-      setNetworks(res.data);
-    } catch (e) {
-      console.error("Scan failed", e);
+      // 1. Try Local Scan (Real Hardware)
+      try {
+        console.log("Attempting local scan...");
+        const localRes = await api.get('/api/network/scan', {
+          baseURL: 'http://localhost:8000',
+          timeout: 2000 
+        });
+        setNetworks(localRes.data);
+        console.log("Local scan successful");
+      } catch (localErr) {
+        // 2. Fallback to Cloud/Simulated Scan
+        console.warn("Local backend unavailable, falling back to cloud simulation.", localErr);
+        const cloudRes = await api.get('/api/network/scan');
+        setNetworks(cloudRes.data);
+      }
+    } catch (error) {
+      console.error("Scan failed", error);
     } finally {
       setIsScanning(false);
     }
