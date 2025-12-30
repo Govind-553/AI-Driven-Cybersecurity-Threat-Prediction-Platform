@@ -45,8 +45,7 @@ const NetworkSecurity = () => {
       // 1. Try Local Scan (Real Hardware)
       try {
         console.log("Attempting local scan...");
-        const localRes = await api.get('/api/network/scan', {
-          baseURL: 'http://localhost:8000',
+        const localRes = await api.get('http://localhost:8000/api/network/scan', {
           timeout: 2000 
         });
         setNetworks(localRes.data);
