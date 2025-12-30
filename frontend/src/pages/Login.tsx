@@ -36,6 +36,9 @@ const Login = () => {
    const handleSocialLogin = async (provider: 'github' | 'google') => {
       await supabase.auth.signInWithOAuth({
          provider,
+         options: {
+            redirectTo: `${window.location.origin}/dashboard`,
+         },
       });
    };
 
