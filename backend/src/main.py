@@ -3,6 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 import warnings
 
 # Suppress warnings
+import sys
+if sys.version_info < (3, 10):
+    try:
+        import importlib.metadata
+        import importlib_metadata
+        if not hasattr(importlib.metadata, "packages_distributions"):
+            importlib.metadata.packages_distributions = importlib_metadata.packages_distributions
+    except ImportError:
+        pass
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -20,6 +30,7 @@ app.add_middleware(
 
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 app.include_router(dashboard.router, prefix="/api", tags=["Legacy/Stream"]) # Map /ws/stream and /network to root api namespace if needed or keep structure
+app.include_router(dashboard.router, prefix="", tags=["Root Stream"]) 
 app.include_router(analysis.router, prefix="/api/analyze", tags=["Analysis"])
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 

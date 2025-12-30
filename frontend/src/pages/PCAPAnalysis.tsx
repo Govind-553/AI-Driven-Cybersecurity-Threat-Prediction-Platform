@@ -12,7 +12,7 @@ import {
    CartesianGrid
 } from 'recharts';
 
-import axios from 'axios';
+import api from '../lib/api';
 
 const PCAPAnalysis = () => {
    interface PcapData {
@@ -34,7 +34,7 @@ const PCAPAnalysis = () => {
          formData.append('file', e.target.files[0]);
 
          try {
-            const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/pcap', formData);
+            const res = await api.post('/api/analyze/pcap', formData);
             setPcapData({
                packets: res.data.stats.packets,
                duration: res.data.stats.duration,

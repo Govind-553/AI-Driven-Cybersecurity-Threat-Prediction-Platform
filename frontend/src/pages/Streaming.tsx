@@ -30,7 +30,13 @@ const Streaming = () => {
   }
   
   const [isConnected, setIsConnected] = useState(false);
-  const [streamUrl, setStreamUrl] = useState('https://ai-cybersecurity-guard.onrender.com/ws/stream');
+  const [streamUrl, setStreamUrl] = useState(() => {
+    // Localhost vs Production
+    if (window.location.hostname === 'localhost') {
+      return 'ws://localhost:8000/ws/stream';
+    }
+    return 'wss://ai-cybersecurity-guard.onrender.com/ws/stream';
+  });
   const [threats, setThreats] = useState<Threat[]>([]);
   const [chartData, setChartData] = useState<{ time: string; count: number }[]>([]);
   const [metrics, setMetrics] = useState({
@@ -56,8 +62,6 @@ const Streaming = () => {
       else if (bytesPerSec > 1024) throughputDisplay = `${(bytesPerSec / 1024).toFixed(2)} KB/s`;
 
       // Calculate packet loss (Simulated/Heuristic)
-      // If we received messages, we assume 0% loss for this demo unless we track sequence numbers.
-      // If no messages, we don't necessarily show 100% loss unless we expected them.
       const packetLossDisplay = messageCount.current > 0 ? '0.00%' : '0.00%';
 
       setMetrics(prev => ({
