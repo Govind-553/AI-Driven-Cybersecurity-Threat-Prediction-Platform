@@ -5,11 +5,13 @@ from src.services.pcap_service import pcap_service
 
 from src.services.virustotal_service import vt_service
 from src.services.storage_service import storage_service
+from fastapi import Depends
+from src.auth import verify_token
 
 router = APIRouter()
 
 @router.post("/file")
-async def analyze_file(file: UploadFile = File(...)):
+async def analyze_file(file: UploadFile = File(...), user=Depends(verify_token)):
     content = await file.read()
     filename = file.filename
     
@@ -66,11 +68,11 @@ async def analyze_file(file: UploadFile = File(...)):
         }
 
 @router.post("/pcap")
-async def analyze_pcap(file: UploadFile = File(...)):
+async def analyze_pcap(file: UploadFile = File(...), user=Depends(verify_token)):
     return pcap_service.analyze(file.file, file.filename)
 
 @router.post("/qr")
-async def analyze_qr(file: UploadFile = File(...)):
+async def analyze_qr(file: UploadFile = File(...), user=Depends(verify_token)):
     content = await file.read()
     # Detect mime type or default to png
     mime_type = file.content_type if file.content_type else "image/png"
@@ -82,7 +84,7 @@ async def analyze_qr(file: UploadFile = File(...)):
     return result
 
 @router.post("/qr-text")
-async def analyze_qr_text(data: dict):
+async def analyze_qr_text(data: dict, user=Depends(verify_token)):
     content = data.get("content")
     if not content:
         return {"error": "No content provided"}
@@ -93,7 +95,7 @@ async def analyze_qr_text(data: dict):
     return result
 
 @router.post("/url")
-async def analyze_url(data: dict):
+async def analyze_url(data: dict, user=Depends(verify_token)):
     url = data.get("url")
     if not url:
         return {"error": "No URL provided"}

@@ -17,7 +17,7 @@ import {
   Tooltip
 } from 'recharts';
 
-import axios from 'axios';
+import api from '../lib/api';
 
 const FileAnalysis = () => {
   interface ScannedFile {
@@ -56,7 +56,7 @@ const FileAnalysis = () => {
       formData.append('file', files[i]);
 
       try {
-        const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/file', formData, {
+        const res = await api.post('/api/analyze/file', formData, {
           onUploadProgress: (p) => {
             const percent = p.total ? Math.round((p.loaded * 100) / p.total) : 50;
             setProgress(percent);
@@ -92,7 +92,7 @@ const FileAnalysis = () => {
     if (!urlInput) return;
     setIsUrlScanning(true);
     try {
-      const res = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/analyze/url', { url: urlInput });
+      const res = await api.post('/api/analyze/url', { url: urlInput });
       setScannedFiles(prev => [res.data, ...prev]);
       setUrlInput("");
     } catch (err) {

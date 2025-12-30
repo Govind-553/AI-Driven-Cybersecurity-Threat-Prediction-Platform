@@ -46,7 +46,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   ];
 
   return (
-    <aside className={`fixed inset-y-0 left-0 z-50 w-64 h-screen transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto md:flex md:flex-col glass-morphism p-4 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+    <aside className={`fixed inset-y-0 left-0 z-50 w-64 h-[100dvh] flex flex-col transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto glass-morphism p-4 ${isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex items-center gap-3 mb-10 px-2 justify-between">
           <div className="flex items-center gap-3">

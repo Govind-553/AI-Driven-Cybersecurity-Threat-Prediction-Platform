@@ -14,7 +14,7 @@ import {
    Sparkles
 } from 'lucide-react';
 
-import axios from 'axios';
+import api from '../lib/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -60,7 +60,7 @@ const AIChat = () => {
       setIsTyping(true);
 
       try {
-         const response = await axios.post('https://ai-cybersecurity-guard.onrender.com/api/chat', { message: input });
+         const response = await api.post('/api/chat', { message: input });
             const aiMsg: Message = {
                id: Date.now() + 1,
                type: 'ai',

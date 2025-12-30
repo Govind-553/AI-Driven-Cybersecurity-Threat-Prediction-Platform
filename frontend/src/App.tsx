@@ -25,7 +25,7 @@ function App() {
     <div className="flex min-h-screen bg-cyber-black animated-bg relative">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      {/* Mobile Menu Button - Absolute positioned to sit on top of content */}
+      {/* Mobile Menu Button */}
       <button 
         onClick={() => setSidebarOpen(true)}
         className="md:hidden fixed top-4 left-4 z-40 p-2 glass-morphism rounded-lg text-cyber-blue hover:text-white transition-colors"

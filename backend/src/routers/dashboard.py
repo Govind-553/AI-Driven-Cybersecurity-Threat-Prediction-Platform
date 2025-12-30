@@ -3,11 +3,13 @@ from src.services.system_service import get_system_metrics, get_network_interfac
 import asyncio
 import time
 import random
+from fastapi import Depends
+from src.auth import verify_token
 
 router = APIRouter()
 
 @router.get("/stats")
-def dashboard_stats():
+def dashboard_stats(user=Depends(verify_token)):
     sys = get_system_metrics()
     return {
         "global_threats": 842000 + int(time.time() % 10000), 
@@ -21,7 +23,7 @@ import subprocess
 import re
 
 @router.get("/network/scan")
-def network_scan():
+def network_scan(user=Depends(verify_token)):
     try:
         # Run netsh to get networks
         output = subprocess.check_output(["netsh", "wlan", "show", "networks", "mode=bssid"], shell=True).decode("utf-8", errors="ignore")

@@ -18,7 +18,7 @@ import {
    XAxis, YAxis, Tooltip, CartesianGrid
 } from 'recharts';
 
-import axios from 'axios';
+import api from '../lib/api';
 
 const LiveMonitor = () => {
    interface Metrics {
@@ -51,7 +51,7 @@ const LiveMonitor = () => {
    useEffect(() => {
       const fetchStats = async () => {
          try {
-            const res = await axios.get('https://ai-cybersecurity-guard.onrender.com/api/dashboard/stats');
+            const res = await api.get('/api/dashboard/stats');
             setMetrics(prev => ({
                ...prev,
                cpu: res.data.system_load.cpu,

@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Github, Mail, ArrowLeft } from 'lucide-react';
+import { Shield, Github, Mail, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
    const [loading, setLoading] = useState(false);
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
+   const [showPassword, setShowPassword] = useState(false);
    const [error, setError] = useState<string | null>(null);
+   const [success, setSuccess] = useState<string | null>(null);
    const navigate = useNavigate();
 
    const handleLogin = async (e: React.FormEvent) => {
@@ -23,7 +25,10 @@ const Login = () => {
       if (error) {
          setError(error.message);
       } else {
-         navigate('/'); // Dashboard is protected route at /
+         setSuccess("Login Successful! Redirecting...");
+         setTimeout(() => {
+             navigate('/dashboard'); 
+         }, 1500);
       }
       setLoading(false);
    };
@@ -57,29 +62,44 @@ const Login = () => {
                   {error}
                </div>
             )}
+            
+            {success && (
+               <div className="bg-green-500/10 border border-green-500/20 text-green-500 p-3 rounded-xl mb-6 text-sm text-center font-bold">
+                  {success}
+               </div>
+            )}
 
             <form onSubmit={handleLogin} className="space-y-4">
                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Email Address</label>
+                  <label className="block text-xs md:text-sm font-bold text-gray-500 uppercase mb-2">Email Address</label>
                   <input
                      type="email"
                      value={email}
                      onChange={(e) => setEmail(e.target.value)}
-                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyber-blue focus:outline-none transition-all placeholder-gray-600"
+                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-white focus:border-cyber-blue focus:outline-none transition-all placeholder-gray-600 md:text-lg"
                      placeholder="agent@cyberspy.io"
                      required
                   />
                </div>
                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Password</label>
-                  <input
-                     type="password"
-                     value={password}
-                     onChange={(e) => setPassword(e.target.value)}
-                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyber-blue focus:outline-none transition-all placeholder-gray-600"
-                     placeholder="••••••••••••"
-                     required
-                  />
+                  <label className="block text-xs md:text-sm font-bold text-gray-500 uppercase mb-2">Password</label>
+                  <div className="relative">
+                     <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-white focus:border-cyber-blue focus:outline-none transition-all placeholder-gray-600 pr-10 md:text-lg"
+                        placeholder="••••••••••••"
+                        required
+                     />
+                     <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                     >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                     </button>
+                  </div>
                </div>
                
                <button
