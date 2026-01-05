@@ -13,6 +13,7 @@ import {
   X, 
 
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import { 
 
   AreaChart, 
@@ -98,7 +99,7 @@ const Dashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const newThreat = generateThreat();
-      setThreats(prev => [newThreat, ...prev.slice(0, 50)]); // Limit to 50 for performance
+      setThreats(prev => [newThreat, ...prev]); // Allow n number of attacks
 
       
       const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -179,23 +180,65 @@ const Dashboard = () => {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
-
-
-
-
-  const scanNearbyNetworks = () => {
+  const scanNearbyNetworks = async () => {
     setScanningNetworks(true);
     setShowNetworkDropdown(true);
-    setTimeout(() => {
-      const mockNetworks = [
-        { ssid: 'Home_WiFi_5G', signal: 95, security: 'WPA2', distance: 5, channel: 36, speed: '867 Mbps' },
-        { ssid: 'Office_Network', signal: 88, security: 'WPA3', distance: 12, channel: 1, speed: '600 Mbps' },
-        { ssid: 'Neighbor_2.4G', signal: 75, security: 'WPA2', distance: 25, channel: 6, speed: '300 Mbps' },
-        { ssid: 'CoffeeShop_Guest', signal: 68, security: 'Open', distance: 35, channel: 11, speed: '150 Mbps' },
-      ];
-      setNearbyNetworks(mockNetworks);
-      setScanningNetworks(false);
-    }, 2000);
+
+    try {
+        console.log("Attempting local scan...");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); 
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: any = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+        if (session?.access_token) {
+            headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+
+        console.log("Starting network scan fetch...");
+        const response = await fetch('http://localhost:8000/api/network/scan', { 
+          signal: controller.signal,
+          headers: headers 
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+            const data = await response.json();
+            if (Array.isArray(data) && data.length > 0) {
+                setNearbyNetworks(data);
+                console.log("Local scan successful", data.length, "networks found");
+            } else {
+                 console.warn("Backend returned empty or invalid data format:", data);
+                 throw new Error("Empty or invalid data from backend");
+            }
+        } else {
+            console.error("Backend scan failed with status:", response.status, response.statusText);
+            throw new Error(`Backend error: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Scan failed with error:", error);
+         // Fallback to Mock Data
+         setTimeout(() => {
+          const mockNetworks = [
+            { ssid: 'Home_WiFi_5G', signal: 95, security: 'WPA2', distance: 5, channel: 36, speed: '867 Mbps' },
+            { ssid: 'Home_WiFi_2.4G', signal: 90, security: 'WPA2', distance: 10, channel: 1, speed: '600 Mbps' },
+            { ssid: 'Office_Network', signal: 88, security: 'WPA3', distance: 12, channel: 1, speed: '600 Mbps' },
+            { ssid: 'CoffeeShop_Guest', signal: 68, security: 'Open', distance: 35, channel: 11, speed: '150 Mbps' },
+            { ssid: 'Public_Library', signal: 72, security: 'Open', distance: 45, channel: 6, speed: '300 Mbps' },
+            { ssid: 'Secure_Corp_5G', signal: 85, security: 'WPA3-Ent', distance: 15, channel: 48, speed: '1200 Mbps' },
+            { ssid: 'Neighbor_WiFi', signal: 45, security: 'WPA2', distance: 25, channel: 11, speed: '144 Mbps' },
+            { ssid: 'City_Free_WiFi', signal: 60, security: 'Open', distance: 60, channel: 1, speed: '54 Mbps' },
+            { ssid: 'Unknown_Device', signal: 30, security: 'WEP', distance: 80, channel: 9, speed: '11 Mbps' },
+          ];
+          setNearbyNetworks(mockNetworks);
+        }, 1000); // Small delay to simulate "work" if failing over
+    } finally {
+        // Ensure scanning state is turned off after work is done
+        setTimeout(() => setScanningNetworks(false), 1000);
+    }
   };
 
   const connectToNetwork = (network: any) => {
@@ -220,10 +263,62 @@ const Dashboard = () => {
     return colors[severity] || 'bg-gray-500';
   };
 
-  // Helper functions for export (simplified for brevity)
-  const downloadCSV = () => alert("Exporting CSV...");
-  const downloadExcel = () => alert("Exporting Excel...");
-  const downloadJSON = () => alert("Exporting JSON...");
+  // Helper functions for export
+  const downloadJSON = () => {
+    const dataStr = JSON.stringify(threats, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "threat_data.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const convertToCSV = (objArray: any[]) => {
+    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    let str = '';
+    const header = Object.keys(array[0]).join(',') + '\r\n';
+    str += header;
+
+    for (let i = 0; i < array.length; i++) {
+        let line = '';
+        for (let index in array[i]) {
+            if (line !== '') line += ',';
+            line += array[i][index];
+        }
+        str += line + '\r\n';
+    }
+    return str;
+  };
+
+  const downloadCSV = () => {
+      if (threats.length === 0) return alert("No data to export");
+      const csvData = convertToCSV(threats);
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "threat_data.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  };
+
+  const downloadExcel = () => {
+      if (threats.length === 0) return alert("No data to export");
+      const csvData = convertToCSV(threats);
+      // Using CSV served as XLS to open in Excel easily without heavy libraries
+      const blob = new Blob([csvData], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "threat_data.xls");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  };
 
   const [dbConnection, setDbConnection] = useState({
     type: '',
