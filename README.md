@@ -32,7 +32,6 @@ The project aims to develop agentic AI that acts as tireless guardians of networ
 2. Create and activate a virtual environment:
    ```bash
    python -m venv venv
-   # Windows:
    venv\Scripts\activate
    ```
 3. Install dependencies:
