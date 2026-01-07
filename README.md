@@ -10,3 +10,7 @@ The project aims to develop agentic AI that acts as tireless guardians of networ
  * Reduction in the workload of human security experts.
  * Improved overall organizational resilience against digital threats.
 
+## 📹 Video Demonstration: 
+
+https://github.com/user-attachments/assets/56250874-302c-41d3-b3dd-169b59c413bf
+
