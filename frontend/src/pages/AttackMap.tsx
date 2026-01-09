@@ -39,6 +39,23 @@ const AttackMap = () => {
    }, []);
 
    useEffect(() => {
+      const attackTypes = [
+         'DDoS', 'Malware', 'Phishing', 'SQL Injection', 'Ransomware', 'Zero-Day', 
+         'Brute Force', 'XSS', 'Man-in-the-Middle', 'Trojan', 'Worm', 'Spyware',
+         'Cryptojacking', 'Botnet', 'Keylogger', 'Privilege Escalation', 'Directory Traversal',
+         'Cross-Site Request Forgery', 'Session Hijacking', 'DNS Spoofing', 'ARP Spoofing',
+         'Buffer Overflow', 'Insecure Deserialization', 'XXE Injection', 'LDAP Injection',
+         'Command Injection', 'Code Injection', 'Logic Bomb', 'Supply Chain Attack',
+         'Vulnerability Exploitation', 'API Attack', 'Container Escape', 'Cloud Misconfiguration',
+         'Data Exfiltration', 'Privilege Abuse', 'Lateral Movement', 'Rootkit', 'Backdoor',
+         'Exploit Kit', 'Watering Hole', 'Credential Stuffing', 'Password Spray', 'Weak Encryption',
+         'Unpatched Vulnerability', 'Zero Trust Bypass', 'VM Escape', 'Firmware Attack',
+         'Side Channel Attack', 'Timing Attack', 'Race Condition', 'Path Traversal',
+         'SSRF Attack', 'Server Misconfiguration', 'Insecure Direct Object Reference',
+         'Broken Access Control', 'Sensitive Data Exposure', 'XML Bomb', 'Prototype Pollution',
+         'Function Hoisting Attack', 'Type Confusion Attack', 'Use-After-Free'
+      ];
+
       const interval = setInterval(() => {
          const newAttack = {
             startLat: (Math.random() - 0.5) * 180,
@@ -46,7 +63,7 @@ const AttackMap = () => {
             endLat: (Math.random() - 0.5) * 180,
             endLng: (Math.random() - 0.5) * 360,
             color: ['#ff003c', '#00f2ff', '#fdf500'][Math.floor(Math.random() * 3)],
-            type: ['DDoS', 'Malware', 'SQLi', 'Brute Force'][Math.floor(Math.random() * 4)],
+            type: attackTypes[Math.floor(Math.random() * attackTypes.length)],
             ip: `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
          };
 

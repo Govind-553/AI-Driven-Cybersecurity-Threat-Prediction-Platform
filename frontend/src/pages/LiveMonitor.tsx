@@ -66,17 +66,64 @@ const LiveMonitor = () => {
       const interval = setInterval(() => {
          fetchStats();
 
-         // Keep event simulation for visual activity
+         // Keep event simulation for activity
+         const messages = [
+            'Brute force attempt blocked',
+            'Database sync successful',
+            'Heuristic engine updated',
+            'Suspicious IP blacklisted',
+            'API request rate-limited',
+            'Malware signature detected and quarantined',
+            'Zero-day vulnerability patched',
+            'DDoS attack mitigated',
+            'Ransomware payload intercepted',
+            'Unauthorized access attempt prevented',
+            'SSL certificate renewed',
+            'Firewall rules updated',
+            'Intrusion detection system alert',
+            'Network anomaly detected',
+            'Password policy enforced',
+            'Multi-factor authentication enabled',
+            'Backup completed successfully',
+            'System integrity verified',
+            'Threat intelligence feed updated',
+            'Vulnerability scan completed',
+            'Encryption key rotated',
+            'Session anomaly detected',
+            'Suspicious login blocked',
+            'Configuration change detected',
+            'File integrity check passed',
+            'Packet capture analysis completed',
+            'Security audit initiated',
+            'Suspicious process terminated',
+            'Cache cleared successfully',
+            'Load balancer health check passed',
+            'Database query optimized',
+            'Memory leak detected and fixed',
+            'Service availability confirmed',
+            'Alert threshold updated',
+            'Incident response initiated',
+            'Forensic analysis completed',
+            'Evidence collection finished',
+            'Compliance check passed',
+            'Security patch installed',
+            'Antivirus signature updated',
+            'Network traffic analyzed',
+            'Suspicious file flagged',
+            'User activity monitored',
+            'API endpoint secured',
+            'Cookie validation passed',
+            'Request authentication verified',
+            'Access control enforced',
+            'Data retention policy applied',
+            'Temporary file cleanup completed',
+            'System log archival done'
+         ];
+         
          const newEvent = {
             id: Date.now(),
-            type: Math.random() > 0.8 ? 'CRITICAL' : 'INFO',
-            msg: [
-               'Brute force attempt blocked',
-               'Database sync successful',
-               'Heuristic engine updated',
-               'Suspicious IP blacklisted',
-               'API request rate-limited'
-            ][Math.floor(Math.random() * 5)],
+            type: Math.random() > 0.85 ? 'CRITICAL' : 'INFO',
+            msg: messages[Math.floor(Math.random() * messages.length)],
             time: new Date().toLocaleTimeString()
          };
          setEvents(prev => [newEvent, ...prev].slice(0, 10));
